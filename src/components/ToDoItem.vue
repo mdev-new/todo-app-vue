@@ -2,27 +2,43 @@
 
 defineProps({
   id: Number,
-  text: String,
-  done: Boolean
+  todo: Object
 })
 
 </script>
 
 <template>
-  <div class="flex flex-row gap-x-2">
-    <input type="checkbox" :id="id" :checked="done" class="hover:cursor-pointer" v-on:change="$emit('completed', id)"/>
-    <label :for="id">
-      <strike v-if="done">
-        {{ text }}
-      </strike>
-      <span v-else >
-        {{ text }}
-      </span>
-    </label>
-    <button class="border-2 hover:cursor-pointer hover:bg-red-400" v-on:click="$emit('deleted', id)">Smazat</button>
+  <div class="flex flex-col justify-between gap-x-2 shadow-md p-2 w-40 h-40">
+    <div>
+      <label>
+        <span v-if="!todo.done">
+          {{ todo.text }}
+        </span>
+        <div v-else>
+          <strike>
+            {{ todo.text }}
+          </strike>
+          <hr/>
+          <i>
+            Doděláno: {{ new Date(todo.doneDate).toDateString() }}
+          </i>
+        </div>
+      </label>
+    </div>
+    <div class="flex flex-row gap-x-2">
+      <input
+        type="checkbox"
+        :id="id"
+        :checked="todo.done"
+        class="hover:cursor-pointer"
+        v-on:change="$emit('completed', id)"
+      >
+      <button
+        class="shadow-md hover:cursor-pointer hover:bg-red-400 w-full"
+        v-on:click="$emit('deleted', id)"
+      >
+        Smazat
+      </button>
+    </div>
   </div>
 </template>
-
-<style scoped>
-
-</style>
