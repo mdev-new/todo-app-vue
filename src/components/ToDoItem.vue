@@ -8,7 +8,9 @@ defineProps({
 </script>
 
 <template>
-  <div class="flex flex-col justify-between gap-x-2 shadow-md p-2 w-40 h-40">
+  <div
+    class="flex flex-col justify-between gap-x-2 shadow-md p-2 w-40 h-40"
+  >
     <div>
       <label>
         <span v-if="!todo.done">
