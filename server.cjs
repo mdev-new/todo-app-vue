@@ -1,8 +1,10 @@
-const app = require('express')()
+const express = require('express');
+const app = express()
 const cors = require('cors')
 const port = 3000
 
 app.use(cors())
+app.use(express.json())
 
 class User {
   username = ""
@@ -19,23 +21,72 @@ const users = []
 
 const user = (username) => users.find(val => val.username == username)
 
-app.post('/register', (req, res) => {
-  users.push(new User(req.body.username))
-  res.send('ok')
+app.post('/register/:username', (req, res) => {
+  const uname = req.params.username;
+  const u = user(uname);
+
+  if(!u) {
+    users.push(new User(uname))
+    res.json({
+      status: 'success',
+      message: 'Successfully registered.'
+    })
+  } else {
+    res.status(500).json({
+      status: 'fail',
+      message: 'User already exists.'
+    })
+  }
 })
 
 app.get('/todos/:user', (req, res) => {
-  res.json(user(req.params.user).todos)
+  const u = user(req.params.user);
+  if(!u) {
+    res.status(404).json({
+      status: 'fail',
+      message: 'User not found.'
+    })
+    return;
+  }
+
+  res.json({
+    status: 'success',
+    message: 'Successfully loaded.',
+    todos: u.todos
+  })
 })
 
 app.post('/todos/:user', (req, res) => {
-  user(req.params.user).todos.push(req.body)
-  res.status(200).send()
+  const u = user(req.params.user);
+  if(!u) {
+    res.status(404).json({status: 'not_found'})
+    return;
+  }
+
+  u.todos.push(req.body)
+  res.status(200).json({
+    status: 'success'
+  })
 })
 
 app.post('/todos/:user/:id', (req, res) => {
-  user(req.params.user).todos[req.params.id] = req.body
-  res.status(200).send()
+  const u = user(req.params.user);
+  const i = req.params.id;
+  if(!u) {
+    res.status(404).json({status: 'not_found'})
+    return;
+  }
+
+  if(Object.keys(req.body).length === 0) {
+    // empty obj; delete the todo
+    u.todos.splice(i, 1)
+  } else {
+    u.todos[i] = req.body
+  }
+
+  res.status(200).json({
+    status: 'success'
+  })
 })
 
 app.get('/', (req, res) => {

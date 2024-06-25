@@ -33,7 +33,7 @@ defineProps({
         :id="id"
         :checked="todo.done"
         class="hover:cursor-pointer"
-        v-on:change="$emit('completed', id)"
+        v-on:change="$emit('completed', id, todo)"
       >
       <button
         class="shadow-md hover:cursor-pointer hover:bg-red-400 w-full"
