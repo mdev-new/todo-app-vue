@@ -5,13 +5,13 @@ const store = reactive({
   warn: "",
   err: "",
   get user() {
-    return localStorage.getItem('user');
+    return sessionStorage.getItem('user');
   },
   set user(new_val: string | null) {
     if(new_val) {
-      localStorage.setItem('user', new_val)
+      sessionStorage.setItem('user', new_val)
     } else {
-      localStorage.removeItem('user')
+      sessionStorage.removeItem('user')
     }
   }
 })

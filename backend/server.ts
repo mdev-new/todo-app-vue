@@ -171,7 +171,8 @@ app.put('/todos/:user/:uuid', (req, res) => {
   res.status(201).json({
     status: SERVER_STATUS.SUCCESS,
     extra_status: null,
-    message: "Todo úspěšně aktualizováno."
+    message: "Todo úspěšně aktualizováno.",
+    index: todoIndex
   })
 })
 

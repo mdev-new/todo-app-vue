@@ -1,12 +1,33 @@
 <script setup lang="ts">
 
+import { ref, onMounted, onUnmounted } from 'vue'
+
 import type {
   ToDo
 } from '../../types/types.ts'
 
-defineProps<{
+const props = defineProps<{
   todo: ToDo
 }>()
+
+const deadline = ref(0)
+let intervalId = 0;
+
+const rawDateToMinutes = (date_ms) => Math.floor(date_ms / (1000 * 60))
+
+const updateDeadlineLeft = () => {
+  const minutes = rawDateToMinutes(props.todo.deadline - Date.now())
+  deadline.value = minutes;
+}
+
+onMounted(() => {
+  updateDeadlineLeft()
+  intervalId = setInterval(updateDeadlineLeft, 1000 * 60)
+})
+
+onUnmounted(() => {
+  clearInterval(intervalId);
+})
 
 </script>
 
@@ -28,16 +49,25 @@ defineProps<{
           }"
         >
           {{ todo.text }}
+          <hr/>
+          <i class="text-xs">
+            Do deadline zbývá {{ deadline }} minut.
+          </i>
         </span>
         <div v-else>
           <span
-            class="strike-through break-words"
+            class="line-through break-words"
+            :style="{
+              fontWeight: (todo.priority == 3) ? '700' : '400',
+              fontStyle: (todo.priority == 1) ? 'italic' : 'normal'
+            }"
           >
             {{ todo.text }}
           </span>
           <hr/>
-          <i>
-            Doděláno: {{ new Date(todo.doneDate).toLocaleString() }}
+          <i class="text-xs">
+            Doděláno: {{ new Date(todo.doneDate).toLocaleString() }},
+            {{ rawDateToMinutes(todo.deadline - todo.doneDate) }} min před deadline.
           </i>
         </div>
       </label>

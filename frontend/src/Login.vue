@@ -17,28 +17,30 @@ const login = () => {
   api.get(`/login/${username.value}`).then(response => {
 
     const data = response.data;
+    store.user = data.user.username;
+  }).catch(error => {
 
-    if(data.status == SERVER_STATUS.SUCCESS) {
-      store.user = data.user.username;
+    if(!error.response) {
+      store.err = "Něco se pokazilo.";
     } else {
+      const data = error.response.data;
       store.err = data.message;
     }
-  }).catch(error => {
-    store.err = "Něco se pokazilo.";
   })
 }
 
 const register = () => {
   api.post(`/register/${username.value}`).then(response => {
     const data = response.data;
+    store.info = data.message;
+  }).catch(error => {
 
-    if(data.status == SERVER_STATUS.SUCCESS) {
-      store.info = data.message;
+    if(!error.response) {
+      store.err = "Něco se pokazilo.";
     } else {
+      const data = error.response.data;
       store.err = data.message;
     }
-  }).catch(error => {
-    store.err = "Něco se pokazilo.";
   })
 }
 

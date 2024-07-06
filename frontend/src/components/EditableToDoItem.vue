@@ -24,9 +24,19 @@ const props = withDefaults(defineProps<{
   isNew: false
 })
 
+const dateToInput = (date) => {
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
+  const hours = date.getHours().toString().padStart(2, "0");
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
 const text = ref(props.todo.text)
 const color = ref(props.todo.color)
-const deadline = ref(props.todo.deadline)
+const deadline = ref(dateToInput(new Date(props.todo.deadline)))
 const priority = ref(props.todo.priority)
 
 </script>
@@ -45,8 +55,8 @@ const priority = ref(props.todo.priority)
     <div class="flex flex-row gap-x-1">
       <label for="deadline">Deadline</label>
       <input
-        id="deadline"
         v-model="deadline"
+        id="deadline"
         type="datetime-local"
         class="rounded-sm"
       />
@@ -84,7 +94,7 @@ const priority = ref(props.todo.priority)
       </button>
       <button
         class="shadow-md hover:cursor-pointer hover:bg-blue-400 flex-grow basis-0 bg-white"
-        @click="$emit('save', todo.uuid, text, color, deadline, priority)"
+        @click="$emit('save', todo.uuid, text, color, Date.parse(deadline), priority, todo.done, todo.doneDate)"
       >
         Uložit
       </button>

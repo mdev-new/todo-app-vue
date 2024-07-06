@@ -8,6 +8,7 @@ import store from '@/store.ts'
 
 const logout = () => {
   store.user = null;
+  store.info = 'Úspěšné odhlášení.'
 }
 
 </script>

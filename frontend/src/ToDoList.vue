@@ -12,6 +12,10 @@ import {
   SERVER_STATUS
 } from '@root/enum/status.js'
 
+import type {
+  ToDo
+} from '@root/types/types.ts'
+
 const editing_todo_id = ref('')
 const todos = ref([]);
 
@@ -23,14 +27,16 @@ onMounted(() => {
     api.get(`/todos/${store.user}`).then(response => {
       const data = response.data;
 
-      if(data.status == SERVER_STATUS.SUCCESS) {
-        todos.value = data.todos;
-        store.info = data.message;
+      todos.value = data.todos;
+      store.info = data.message;
+    }).catch(error => {
+
+      if(!error.response) {
+        store.err = "Něco se pokazilo.";
       } else {
+        const data = error.response.data;
         store.err = data.message;
       }
-    }).catch(error => {
-      store.err = "Něco se pokazilo.";
     })
   }
 })
@@ -55,20 +61,22 @@ const create = (uuid, text, color, deadline, priority) => {
   api.post(`/todos/${store.user}`, todo_partial).then(response => {
     const data = response.data;
 
-    if(data.status == SERVER_STATUS.SUCCESS) {
-      store.info = data.message;
-      todos.push(data.todo)
+    store.info = data.message;
+    todos.value.push(data.todo)
+  }).catch(error => {
+
+    if(!error.response) {
+      store.err = "Něco se pokazilo.";
     } else {
+      const data = error.response.data;
       store.err = data.message;
     }
-  }).catch(error => {
-    store.err = "Něco se pokazilo.";
   })
 }
 
 const edit = (uuid, text, color, deadline, priority, done, doneDate) => {
 
-  const todo = {
+  const todo: ToDo = {
     uuid,
     text,
     color,
@@ -81,28 +89,31 @@ const edit = (uuid, text, color, deadline, priority, done, doneDate) => {
   api.put(`/todos/${store.user}/${uuid}`, todo).then(response => {
     const data = response.data;
 
-    if(data.status == SERVER_STATUS.SUCCESS) {
-      todos.value[id] = todo
+    todos.value[data.index] = todo
+    editing_todo_id.value = ''
+    store.info = data.message;
+  }).catch(error => {
+
+    if(!error.response) {
+      store.err = "Něco se pokazilo.";
     } else {
+      const data = error.response.data;
       store.err = data.message;
     }
-  }).catch(error => {
-    store.err = "Něco se pokazilo.";
   })
 }
 
 const toggle_complete = (todo) => {
-  const id = todo.uuid;
 
-  todo.done = !todo.done;
-
-  // If the todo got just completed,
-  // set a completion date.
-  if(todo.done) {
-    todo.doneDate = Date.now()
-  } else {
-    todo.doneDate = null
-  }
+  edit(
+    todo.uuid,
+    todo.text,
+    todo.color,
+    todo.deadline,
+    todo.priority,
+    !todo.done,
+    (!todo.done) ? Date.now() : null
+  )
 
 }
 
@@ -111,14 +122,16 @@ const del = (id) => {
 
     const data = response.data;
 
-    if(data.status == SERVER_STATUS.SUCCESS) {
-      todos.value.splice(data.index, 1)
-      store.info = data.message;
-    } else {
-      store.err = "Něco se pokazilo.";
-    }
+    todos.value.splice(data.index, 1)
+    store.info = data.message;
   }).catch(error => {
-    store.err = "Něco se pokazilo.";
+
+    if(!error.response) {
+      store.err = "Něco se pokazilo.";
+    } else {
+      const data = error.response.data;
+      store.err = data.message;
+    }
   })
 }
 
@@ -130,7 +143,7 @@ const del = (id) => {
     class="p-2 flex flex-row flex-wrap gap-2"
   >
     <EditableToDoItem
-      v-show="!editing_todo_id"
+      v-show="editing_todo_id == ''"
       @save="create"
       is-new="true"
     />
