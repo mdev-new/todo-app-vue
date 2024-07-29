@@ -2,6 +2,8 @@
 
 import Close from '@assets/Close.vue'
 
+defineEmits(['hide'])
+
 defineProps<{
   message: String
 }>()

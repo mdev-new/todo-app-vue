@@ -4,7 +4,7 @@ import TopNav from '@components/TopNav.vue'
 import Info from '@components/Info.vue'
 import Warning from '@components/Warning.vue'
 import Error from '@components/Error.vue'
-  
+
 const hideInfo = () => {
   store.info = ""
 }

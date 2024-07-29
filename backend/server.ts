@@ -204,7 +204,7 @@ app.delete('/todos/:user/:uuid', (req, res) => {
 
   user.todos.splice(todoIndex, 1)
 
-  res.status(201).json({
+  res.status(202).json({
     status: SERVER_STATUS.SUCCESS,
     extra_status: null,
     message: "Todo bylo úspěšně smazáno.",

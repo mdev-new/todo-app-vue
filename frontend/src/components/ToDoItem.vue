@@ -1,10 +1,12 @@
 <script setup lang="ts">
 
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 
 import type {
   ToDo
-} from '../../types/types.ts'
+} from '@root/types/types.ts'
+
+defineEmits(['complete', 'edit', 'delete'])
 
 const props = defineProps<{
   todo: ToDo

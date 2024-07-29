@@ -5,6 +5,8 @@ defineProps<{
   message: String
 }>()
 
+defineEmits(['hide'])
+
 </script>
 
 <template>
