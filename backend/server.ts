@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { v4 as uuidv4 } from 'uuid';
+import { toDoSchema, userSchema } from './types';
 
 import {
   SERVER_STATUS,
@@ -22,14 +23,14 @@ app.use(express.json())
 // ale toto je momentálně nejjednodušší :)
 const users : User[] = []
 
-const makeUser = (username) : User => ({
+const makeUser = (username: string) : User => ({
   username: username,
   todos: []
 })
 
-const findUser = (username) => users.find(val => val.username === username)
+const findUser = (username: string) => users.find(val => val.username === username)
 
-const makeTodo = (text, color, deadline, priority): ToDo => ({
+const makeTodo = (text: string, color: string, deadline: number | null, priority: number): ToDo => ({
   uuid: uuidv4(),
   text: text,
   color: color,
@@ -121,7 +122,6 @@ app.post('/todos/:user', (req, res) => {
     return;
   }
 
-  // todo validation
   const todo = makeTodo(
     body.text,
     body.color,
@@ -129,14 +129,23 @@ app.post('/todos/:user', (req, res) => {
     body.priority
   )
 
-  user.todos.push(todo)
+  try {
+    user.todos.push(toDoSchema.parse(todo))
 
-  res.status(201).json({
-    status: SERVER_STATUS.SUCCESS,
-    extra_status: null,
-    message: "Todo úspěšně uloženo.",
-    todo: todo
-  })
+    res.status(201).json({
+      status: SERVER_STATUS.SUCCESS,
+      extra_status: null,
+      message: "Todo úspěšně uloženo.",
+      todo: todo
+    })
+  } catch(error) {
+    res.status(403).json({
+      status: SERVER_STATUS.FAIL,
+      extra_status: SERVER_STATUS_EXTRA.INVALID_INPUT,
+      message: "Nevalidní todo.",
+    })
+  }
+
 })
 
 app.put('/todos/:user/:uuid', (req, res) => {
@@ -165,15 +174,23 @@ app.put('/todos/:user/:uuid', (req, res) => {
     return;
   }
 
-  // todo validation
-  user.todos[todoIndex] = req.body;
+  try {
+    user.todos[todoIndex] = toDoSchema.parse(req.body);
 
-  res.status(201).json({
-    status: SERVER_STATUS.SUCCESS,
-    extra_status: null,
-    message: "Todo úspěšně aktualizováno.",
-    index: todoIndex
-  })
+    res.status(201).json({
+      status: SERVER_STATUS.SUCCESS,
+      extra_status: null,
+      message: "Todo úspěšně aktualizováno.",
+      index: todoIndex
+    })
+  } catch(error) {
+    res.status(403).json({
+      status: SERVER_STATUS.FAIL,
+      extra_status: SERVER_STATUS_EXTRA.INVALID_INPUT,
+      message: "Nevalidní todo.",
+    })
+  }
+
 })
 
 app.delete('/todos/:user/:uuid', (req, res) => {
